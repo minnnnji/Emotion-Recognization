@@ -1,5 +1,4 @@
 ## Module import 
-from ast import keyword
 import pandas as pd
 import numpy as np
 from konlpy.tag import Mecab, Okt
@@ -38,14 +37,21 @@ class NLP:
         return titles
     
     def mecab_news(self, data):
+        '''
+            - mecab_news() : csv에 있는 모든 문자열을 하나로 만드는 함수
 
+                - input parameter : (Data Frame)data
+                - output : 
+                    - txt file : title 과 contents의 상위빈도수 단어 모음
+                    - Dataframe : (빈도수,  단어)로 이루어진 데이터 프레임
+        '''
         # 형태소 분석기 불러오기
         mecab = Mecab()
 
         # 뉴스 '제목' 합치고 문자열 cleaning
         titles = self.merge_news(data['title'])
         titles = self.string_cleaning(titles)
-
+        
         titles = mecab.pos(titles)
         titles_tmp = []
         for t in titles:
@@ -72,7 +78,7 @@ class NLP:
             f.write(word + '\n')
 
         f.close()
-        # print(titles_df.head(10)) # 빈도수 상위 10개 출력
+        print(titles_df.head(10)) # 빈도수 상위 10개 출력
 
         #-------------------------------------------------------#
 
@@ -83,7 +89,7 @@ class NLP:
         contents = mecab.pos(contents)
 
         contents_tmp = []
-        for t in titles:
+        for t in contents:
             if t[1].startswith(('V', 'N')):
                 contents_tmp.append(t[0])
 
@@ -94,6 +100,7 @@ class NLP:
         
         # 기사 내용에서 명사만 추출 
         contents_df = pd.Series(contents_del_stop) 
+        
         # [ 단어, 빈도수 ] 구성으로 Dataframe 화
         contents_df = contents_df.value_counts().rename_axis('word').reset_index(name='count') 
 
@@ -107,24 +114,19 @@ class NLP:
             f.write(word + '\n')
 
         f.close()
-        # print(contents_df.head(10))
-
+        print(contents_df.head(10))
 
 if __name__ == '__main__':
 
     nlp = NLP()
 
     data = pd.read_csv('./Data/news_crawling.csv')
+
     KEYWORD = 'SD바이오센서'
     
-
     sample = ['에스디', '바이오', '센서', '에스디바이오센서', 'SD바이오센서', '에스', '디', '만', '억', '조']
     for s in sample:
         stopword.append(s)
 
     nlp.mecab_news(data)
-
-
-
-
 
