@@ -47,6 +47,10 @@ class NLP:
         '''
         # 형태소 분석기 불러오기
         mecab = Mecab()
+
+        # 뉴스 '제목' 합치고 문자열 cleaning
+        titles = self.merge_news(data['title'])
+        titles = self.string_cleaning(titles)
         
         titles = mecab.pos(titles)
         titles_tmp = []
@@ -74,7 +78,7 @@ class NLP:
             f.write(word + '\n')
 
         f.close()
-        # print(titles_df.head(10)) # 빈도수 상위 10개 출력
+        print(titles_df.head(10)) # 빈도수 상위 10개 출력
 
         #-------------------------------------------------------#
 
@@ -85,7 +89,7 @@ class NLP:
         contents = mecab.pos(contents)
 
         contents_tmp = []
-        for t in titles:
+        for t in contents:
             if t[1].startswith(('V', 'N')):
                 contents_tmp.append(t[0])
 
@@ -96,6 +100,7 @@ class NLP:
         
         # 기사 내용에서 명사만 추출 
         contents_df = pd.Series(contents_del_stop) 
+        
         # [ 단어, 빈도수 ] 구성으로 Dataframe 화
         contents_df = contents_df.value_counts().rename_axis('word').reset_index(name='count') 
 
@@ -109,7 +114,9 @@ class NLP:
             f.write(word + '\n')
 
         f.close()
+
         # print(contents_df.head(10))
+
 
 if __name__ == '__main__':
 
